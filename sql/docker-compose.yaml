@@ -1,0 +1,40 @@
+#? Versión de docker compose
+version: '3.7'
+
+#? Crear un servicio con sus dependencias
+services:
+  #? Declarar mysql como servicio
+  mysql:
+    #? Construir el contenedor de mysql a partir de la imagen de Docker Hub
+    image: mysql:latest
+    #? Nombrar el contenedor
+    container_name: mysql
+    #? Reiniciar el contenedor automáticamente en caso de fallo o detención
+    restart: always
+    #? Mapear el puerto del contenedor al puerto del host
+    # Formato: <puerto_del_host>:<puerto_del_contenedor>
+    ports:
+      - 3306:3306
+    #? Variables de entorno utilizadas por el contenedor para configurar la base de datos
+    environment:
+      MYSQL_ROOT_PASSWORD: "CONTRASEÑA_ROOT"  #! Contraseña del usuario root de MySQL
+      MYSQL_DATABASE: "NOMBRE_DB"             #! Nombre de la base de datos que se creará
+      # MYSQL_USER: "USUARIO"                 #* (Opcional) Nombre de un usuario personalizado
+      # MYSQL_PASSWORD: "CONTRASEÑA"          #* (Opcional) Contraseña del usuario personalizado
+    #? Crear una carpeta en el host para persistir los datos de la base de datos
+    # Formato: <ruta_del_host>:<ruta_del_contenedor>:<modo>
+    volumes:
+      - ./schemas:/var/lib/mysql:rw #! rw -> read and write only
+    #? Establecer conexión con la red definida más abajo para permitir acceso desde otros servicios
+    networks:
+      mysql_network:
+        aliases:
+          - mysql_host
+
+#? Definir volúmenes y redes para su uso en los servicios
+volumes:
+  schemas: {}  #? Definición de diccionario vacío para crear el volumen
+networks:
+  mysql_network:
+    name: mysql_net  #! Nombre personalizado para la red
+    driver: bridge   #! Utilizar el driver de puente para la red (puede ser diferente según las necesidades)
